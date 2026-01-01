@@ -1,4 +1,4 @@
-// ================== CONFIG ==================
+// ================= CONFIG =================
 const SHEET_API = "https://sheetdb.io/api/v1/i7exoujw69dgx";
 
 // Order numbers
@@ -9,58 +9,87 @@ const IMO = "8801815849575";
 const DELIVERY_DHAKA = 60;
 const DELIVERY_OUT = 120;
 
-// ================== GLOBAL ==================
+// ================= GLOBAL =================
 let products = [];
 let currentProduct = null;
 let currentQty = 1;
 
-// ================== LOAD DATA ==================
+// ================= LOAD DATA =================
 fetch(SHEET_API)
   .then(res => res.json())
   .then(data => {
-    // শুধু active product নিবে
     products = data.filter(p => p.active === "TRUE");
-    renderCategories();
-    renderProducts("All");
+    renderHomeSections();   // 🔥 Homepage section render
   })
   .catch(err => {
     console.error("Sheet load error:", err);
   });
 
-// ================== CATEGORY ==================
-function renderCategories() {
-  const catDiv = document.getElementById("categories");
+// ================= HOMEPAGE SECTIONS =================
+function renderHomeSections() {
+  const container = document.getElementById("home-sections");
+  if (!container) return;
+
   const categories = [...new Set(products.map(p => p.category))];
 
-  let html = `<button onclick="renderProducts('All')">All</button>`;
-  categories.forEach(cat => {
-    html += `<button onclick="renderProducts('${cat}')">${cat}</button>`;
-  });
+  container.innerHTML = categories.map(cat => {
+    const items = products.filter(p => p.category === cat).slice(0, 4);
 
-  catDiv.innerHTML = html;
+    return `
+      <section class="section">
+        <div class="section-title">
+          <h3>${cat}</h3>
+          <button onclick="renderCategory('${cat}')">See More</button>
+        </div>
+
+        <div class="products">
+          ${items.map(p => `
+            <div class="product">
+              <img src="${p.image_url}" alt="${p.name}">
+              <h4>${p.name}</h4>
+              <p>৳ ${p.price}</p>
+              <button onclick="openPopup('${p.name}', ${p.price})">
+                Add to Cart
+              </button>
+            </div>
+          `).join("")}
+        </div>
+      </section>
+    `;
+  }).join("");
 }
 
-// ================== PRODUCTS ==================
-function renderProducts(category) {
-  const productDiv = document.getElementById("products");
+// ================= CATEGORY PAGE (See More) =================
+function renderCategory(category) {
+  const container = document.getElementById("home-sections");
+  if (!container) return;
 
-  const filtered = products.filter(p =>
-    category === "All" || p.category === category
-  );
+  const items = products.filter(p => p.category === category);
 
-  productDiv.innerHTML = filtered.map(p => `
-    <div class="product">
-      <img src="${p.image_url}" alt="${p.name}" style="width:100%">
-      <h4>${p.name}</h4>
-      <p>${p.price}৳</p>
-      <button onclick="openPopup('${p.name}', ${p.price})">
-        অর্ডার করুন
-      </button>
-    </div>
-  `).join("");
+  container.innerHTML = `
+    <section class="section">
+      <div class="section-title">
+        <h3>${category}</h3>
+        <button onclick="renderHomeSections()">Back</button>
+      </div>
+
+      <div class="products">
+        ${items.map(p => `
+          <div class="product">
+            <img src="${p.image_url}" alt="${p.name}">
+            <h4>${p.name}</h4>
+            <p>৳ ${p.price}</p>
+            <button onclick="openPopup('${p.name}', ${p.price})">
+              Add to Cart
+            </button>
+          </div>
+        `).join("")}
+      </div>
+    </section>
+  `;
 }
 
-// ================== POPUP ==================
+// ================= POPUP =================
 function openPopup(name, price) {
   currentProduct = { name, price };
   currentQty = 1;
@@ -74,7 +103,7 @@ function closePopup() {
   document.getElementById("popup").style.display = "none";
 }
 
-// ================== QUANTITY ==================
+// ================= QUANTITY =================
 function qtyPlus() {
   currentQty++;
   updateTotal();
@@ -87,7 +116,7 @@ function qtyMinus() {
   }
 }
 
-// ================== TOTAL ==================
+// ================= TOTAL =================
 function updateTotal() {
   const delivery = parseInt(document.getElementById("delivery").value);
   const total = (currentProduct.price * currentQty) + delivery;
@@ -102,7 +131,7 @@ document.addEventListener("change", function (e) {
   }
 });
 
-// ================== ORDER MESSAGE ==================
+// ================= ORDER MESSAGE =================
 function buildMessage() {
   const name = document.getElementById("custName").value;
   const phone = document.getElementById("custPhone").value;
@@ -133,7 +162,7 @@ Address: ${address}
 `.trim();
 }
 
-// ================== WHATSAPP ==================
+// ================= WHATSAPP =================
 function orderWA() {
   const msg = buildMessage();
   window.open(
@@ -142,48 +171,20 @@ function orderWA() {
   );
 }
 
-// ================== IMO ==================
+// ================= IMO (COPY SYSTEM) =================
 function orderIMO() {
   const msg = buildMessage();
-  alert("IMO এ পাঠানোর আগে নিচের লেখা কপি করুন:\n\n" + msg);
-  window.open(`https://imo.im/?chat=${IMO}`, "_blank");
+  alert(
+    "IMO সরাসরি message support করে না।\n\nএই লেখা কপি করুন এবং IMO তে পাঠান:\n\n" +
+    msg +
+    "\n\nIMO Number: +8801815849575"
+  );
 }
 
-// ================== SCROLL ==================
+// ================= SCROLL =================
 function scrollToProducts() {
-  document
-    .getElementById("products")
-    .scrollIntoView({ behavior: "smooth" });
+  const el = document.getElementById("home-sections");
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth" });
+  }
 }
-function renderHomeSections() {
-  const container = document.getElementById("home-sections");
-  const categories = [...new Set(products.map(p => p.category))];
-
-  container.innerHTML = categories.map(cat => {
-    const items = products.filter(p => p.category === cat).slice(0, 4);
-
-    return `
-      <section class="section">
-        <div class="section-title">
-          <h3>${cat}</h3>
-          <button onclick="renderProducts('${cat}')">See More</button>
-        </div>
-        <div class="products">
-          ${items.map(p => `
-            <div class="product">
-              <img src="${p.image_url}">
-              <h4>${p.name}</h4>
-              <p>৳ ${p.price}</p>
-              <button onclick="openPopup('${p.name}', ${p.price})">
-                Add to Cart
-              </button>
-            </div>
-          `).join("")}
-        </div>
-      </section>
-    `;
-  }).join("");
-}
-
-// call after data load
-renderHomeSections();
