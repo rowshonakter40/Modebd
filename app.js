@@ -1,4 +1,4 @@
-// ================= CONFIG =================
+// ================== CONFIG ==================
 const SHEET_API = "https://sheetdb.io/api/v1/i7exoujw69dgx";
 
 // Order numbers
@@ -9,15 +9,16 @@ const IMO = "8801815849575";
 const DELIVERY_DHAKA = 60;
 const DELIVERY_OUT = 120;
 
-// ================= GLOBAL =================
+// ================== GLOBAL ==================
 let products = [];
 let currentProduct = null;
 let currentQty = 1;
 
-// ================= LOAD PRODUCTS FROM SHEET =================
+// ================== LOAD DATA ==================
 fetch(SHEET_API)
   .then(res => res.json())
   .then(data => {
+    // শুধু active product নিবে
     products = data.filter(p => p.active === "TRUE");
     renderCategories();
     renderProducts("All");
@@ -26,7 +27,7 @@ fetch(SHEET_API)
     console.error("Sheet load error:", err);
   });
 
-// ================= RENDER CATEGORY =================
+// ================== CATEGORY ==================
 function renderCategories() {
   const catDiv = document.getElementById("categories");
   const categories = [...new Set(products.map(p => p.category))];
@@ -39,7 +40,7 @@ function renderCategories() {
   catDiv.innerHTML = html;
 }
 
-// ================= RENDER PRODUCTS =================
+// ================== PRODUCTS ==================
 function renderProducts(category) {
   const productDiv = document.getElementById("products");
 
@@ -49,7 +50,7 @@ function renderProducts(category) {
 
   productDiv.innerHTML = filtered.map(p => `
     <div class="product">
-      <img src="${p.image}" alt="${p.name}" style="width:100%">
+      <img src="${p.image_url}" alt="${p.name}" style="width:100%">
       <h4>${p.name}</h4>
       <p>${p.price}৳</p>
       <button onclick="openPopup('${p.name}', ${p.price})">
@@ -59,7 +60,7 @@ function renderProducts(category) {
   `).join("");
 }
 
-// ================= POPUP =================
+// ================== POPUP ==================
 function openPopup(name, price) {
   currentProduct = { name, price };
   currentQty = 1;
@@ -73,7 +74,7 @@ function closePopup() {
   document.getElementById("popup").style.display = "none";
 }
 
-// ================= QUANTITY =================
+// ================== QUANTITY ==================
 function qtyPlus() {
   currentQty++;
   updateTotal();
@@ -86,7 +87,7 @@ function qtyMinus() {
   }
 }
 
-// ================= TOTAL =================
+// ================== TOTAL ==================
 function updateTotal() {
   const delivery = parseInt(document.getElementById("delivery").value);
   const total = (currentProduct.price * currentQty) + delivery;
@@ -101,17 +102,20 @@ document.addEventListener("change", function (e) {
   }
 });
 
-// ================= ORDER MESSAGE =================
+// ================== ORDER MESSAGE ==================
 function buildMessage() {
   const name = document.getElementById("custName").value;
   const phone = document.getElementById("custPhone").value;
   const address = document.getElementById("custAddress").value;
   const delivery = document.getElementById("delivery").value;
-  const deliveryText = delivery == DELIVERY_DHAKA
-    ? "Dhaka City (60৳)"
-    : "Outside Dhaka (120৳)";
 
-  const total = (currentProduct.price * currentQty) + parseInt(delivery);
+  const deliveryText =
+    delivery == DELIVERY_DHAKA
+      ? "Dhaka City (60৳)"
+      : "Outside Dhaka (120৳)";
+
+  const total =
+    (currentProduct.price * currentQty) + parseInt(delivery);
 
   return `
 Shop: Modebd
@@ -129,7 +133,7 @@ Address: ${address}
 `.trim();
 }
 
-// ================= WHATSAPP =================
+// ================== WHATSAPP ==================
 function orderWA() {
   const msg = buildMessage();
   window.open(
@@ -138,15 +142,16 @@ function orderWA() {
   );
 }
 
-// ================= IMO =================
+// ================== IMO ==================
 function orderIMO() {
   const msg = buildMessage();
-  alert("IMO এ message পাঠানোর আগে নিচের তথ্য কপি করুন:\n\n" + msg);
+  alert("IMO এ পাঠানোর আগে নিচের লেখা কপি করুন:\n\n" + msg);
   window.open(`https://imo.im/?chat=${IMO}`, "_blank");
 }
 
-// ================= SCROLL =================
+// ================== SCROLL ==================
 function scrollToProducts() {
-  document.getElementById("products")
+  document
+    .getElementById("products")
     .scrollIntoView({ behavior: "smooth" });
 }
