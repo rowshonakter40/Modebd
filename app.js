@@ -155,3 +155,35 @@ function scrollToProducts() {
     .getElementById("products")
     .scrollIntoView({ behavior: "smooth" });
 }
+function renderHomeSections() {
+  const container = document.getElementById("home-sections");
+  const categories = [...new Set(products.map(p => p.category))];
+
+  container.innerHTML = categories.map(cat => {
+    const items = products.filter(p => p.category === cat).slice(0, 4);
+
+    return `
+      <section class="section">
+        <div class="section-title">
+          <h3>${cat}</h3>
+          <button onclick="renderProducts('${cat}')">See More</button>
+        </div>
+        <div class="products">
+          ${items.map(p => `
+            <div class="product">
+              <img src="${p.image_url}">
+              <h4>${p.name}</h4>
+              <p>৳ ${p.price}</p>
+              <button onclick="openPopup('${p.name}', ${p.price})">
+                Add to Cart
+              </button>
+            </div>
+          `).join("")}
+        </div>
+      </section>
+    `;
+  }).join("");
+}
+
+// call after data load
+renderHomeSections();
