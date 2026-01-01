@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <title>Modebd</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="header">
+  <img src="images/logo.png" class="logo" alt="Modebd">
+  <h1 class="shop-name">Modebd</h1>
+</header>
+
+<section class="banner">
+  <div class="banner-text">
+    <h2>Cash on Delivery Available</h2>
+    <button onclick="scrollToProducts()">Shop Now</button>
+  </div>
+</section>
+
+<nav class="categories" id="categories"></nav>
+
+<main class="products" id="products"></main>
+
+<!-- Order Popup -->
+<div class="popup" id="popup">
+  <div class="popup-content">
+    <h3>Cash on Delivery</h3>
+    <input id="custName" placeholder="নাম">
+    <input id="custPhone" placeholder="ফোন">
+    <textarea id="custAddress" placeholder="ঠিকানা"></textarea>
+
+    <select id="delivery">
+      <option value="60">ঢাকা সিটি (60৳)</option>
+      <option value="120">ঢাকা সিটির বাহিরে (120৳)</option>
+    </select>
+
+    <p id="total"></p>
+
+    <button onclick="orderIMO()">Order via IMO</button>
+    <button onclick="orderWA()">Order via WhatsApp</button>
+    <button onclick="closePopup()">Close</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
