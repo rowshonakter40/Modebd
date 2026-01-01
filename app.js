@@ -1,69 +1,152 @@
-// === CONFIG ===
+// ================= CONFIG =================
+const SHEET_API = "https://sheetdb.io/api/v1/i7exoujw69dgx";
+
+// Order numbers
 const WHATSAPP = "8801957390208";
 const IMO = "8801815849575";
+
+// Delivery charge
 const DELIVERY_DHAKA = 60;
 const DELIVERY_OUT = 120;
 
-// Placeholder products (Phase-1)
-// Phase-2 এ এটা Google Sheet থেকে auto লোড হবে
-let products = [
-  {name:"Sample Product", price:100, category:"Demo", image:"images/banner.jpg", active:true}
-];
-
+// ================= GLOBAL =================
+let products = [];
 let currentProduct = null;
+let currentQty = 1;
 
-// Render
-function render() {
-  const cats = [...new Set(products.map(p=>p.category))];
-  document.getElementById("categories").innerHTML =
-    `<button onclick="filterCat('All')">All</button>` +
-    cats.map(c=>`<button onclick="filterCat('${c}')">${c}</button>`).join("");
+// ================= LOAD PRODUCTS FROM SHEET =================
+fetch(SHEET_API)
+  .then(res => res.json())
+  .then(data => {
+    products = data.filter(p => p.active === "TRUE");
+    renderCategories();
+    renderProducts("All");
+  })
+  .catch(err => {
+    console.error("Sheet load error:", err);
+  });
 
-  filterCat("All");
+// ================= RENDER CATEGORY =================
+function renderCategories() {
+  const catDiv = document.getElementById("categories");
+  const categories = [...new Set(products.map(p => p.category))];
+
+  let html = `<button onclick="renderProducts('All')">All</button>`;
+  categories.forEach(cat => {
+    html += `<button onclick="renderProducts('${cat}')">${cat}</button>`;
+  });
+
+  catDiv.innerHTML = html;
 }
 
-function filterCat(cat){
-  const list = products.filter(p=>p.active && (cat==="All" || p.category===cat));
-  document.getElementById("products").innerHTML = list.map(p=>`
+// ================= RENDER PRODUCTS =================
+function renderProducts(category) {
+  const productDiv = document.getElementById("products");
+
+  const filtered = products.filter(p =>
+    category === "All" || p.category === category
+  );
+
+  productDiv.innerHTML = filtered.map(p => `
     <div class="product">
-      <img src="${p.image}" style="width:100%">
+      <img src="${p.image}" alt="${p.name}" style="width:100%">
       <h4>${p.name}</h4>
       <p>${p.price}৳</p>
-      <button onclick="openPopup('${p.name}',${p.price})">Order</button>
+      <button onclick="openPopup('${p.name}', ${p.price})">
+        অর্ডার করুন
+      </button>
     </div>
   `).join("");
 }
 
-function openPopup(name, price){
-  currentProduct = {name, price};
-  document.getElementById("popup").style.display="block";
-  calcTotal();
-}
-function closePopup(){ document.getElementById("popup").style.display="none"; }
-function calcTotal(){
-  const d = +document.getElementById("delivery").value;
-  document.getElementById("total").innerText = "Total: " + (currentProduct.price + d) + "৳";
-}
-document.getElementById("delivery")?.addEventListener("change", calcTotal);
+// ================= POPUP =================
+function openPopup(name, price) {
+  currentProduct = { name, price };
+  currentQty = 1;
 
-// Orders
-function orderWA(){
-  const msg = buildMsg();
-  window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`);
+  document.getElementById("popup").style.display = "block";
+  document.getElementById("delivery").value = DELIVERY_DHAKA;
+  updateTotal();
 }
-function orderIMO(){
-  window.open(`https://imo.im/?chat=${IMO}`);
+
+function closePopup() {
+  document.getElementById("popup").style.display = "none";
 }
-function buildMsg(){
-  return `Shop: Modebd
+
+// ================= QUANTITY =================
+function qtyPlus() {
+  currentQty++;
+  updateTotal();
+}
+
+function qtyMinus() {
+  if (currentQty > 1) {
+    currentQty--;
+    updateTotal();
+  }
+}
+
+// ================= TOTAL =================
+function updateTotal() {
+  const delivery = parseInt(document.getElementById("delivery").value);
+  const total = (currentProduct.price * currentQty) + delivery;
+
+  document.getElementById("total").innerText =
+    `মোট: ${total} টাকা (পরিমাণ: ${currentQty})`;
+}
+
+document.addEventListener("change", function (e) {
+  if (e.target && e.target.id === "delivery") {
+    updateTotal();
+  }
+});
+
+// ================= ORDER MESSAGE =================
+function buildMessage() {
+  const name = document.getElementById("custName").value;
+  const phone = document.getElementById("custPhone").value;
+  const address = document.getElementById("custAddress").value;
+  const delivery = document.getElementById("delivery").value;
+  const deliveryText = delivery == DELIVERY_DHAKA
+    ? "Dhaka City (60৳)"
+    : "Outside Dhaka (120৳)";
+
+  const total = (currentProduct.price * currentQty) + parseInt(delivery);
+
+  return `
+Shop: Modebd
+
 Product: ${currentProduct.name}
-Price: ${currentProduct.price}
-Delivery: ${document.getElementById("delivery").value}
-Name: ${custName.value}
-Phone: ${custPhone.value}
-Address: ${custAddress.value}`;
+Qty: ${currentQty}
+Price: ${currentProduct.price}৳
+
+Delivery: ${deliveryText}
+Total: ${total}৳
+
+Name: ${name}
+Phone: ${phone}
+Address: ${address}
+`.trim();
 }
 
-function scrollToProducts(){ document.getElementById("products").scrollIntoView({behavior:"smooth"}); }
+// ================= WHATSAPP =================
+function orderWA() {
+  const msg = buildMessage();
+  window.open(
+    `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`,
+    "_blank"
+  );
+}
 
-render();
+// ================= IMO =================
+function orderIMO() {
+  const msg = buildMessage();
+  alert("IMO এ message পাঠানোর আগে নিচের তথ্য কপি করুন:\n\n" + msg);
+  window.open(`https://imo.im/?chat=${IMO}`, "_blank");
+}
+
+// ================= SCROLL =================
+function scrollToProducts() {
+  document.getElementById("products")
+    .scrollIntoView({ behavior: "smooth" });
+}
