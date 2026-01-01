@@ -1,49 +1,55 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Modebd</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<!-- HEADER -->
 <header class="header">
-  <img src="images/logo.png" class="logo" alt="Modebd">
-  <h1 class="shop-name">Modebd</h1>
+  <div class="logo">Modebd</div>
 </header>
 
-<section class="banner">
-  <div class="banner-text">
-    <h2>Cash on Delivery Available</h2>
-    <button onclick="scrollToProducts()">Shop Now</button>
-  </div>
+<!-- HERO -->
+<section class="hero">
+  <h2>Cash on Delivery Available</h2>
+  <button onclick="scrollToProducts()">Shop Now</button>
 </section>
 
-<nav class="categories" id="categories"></nav>
+<!-- PRODUCT SECTIONS -->
+<div id="home-sections"></div>
 
-<main class="products" id="products"></main>
-
-<!-- Order Popup -->
-<div class="popup" id="popup">
-  <div class="popup-content">
-    <h3>Cash on Delivery</h3>
-    <input id="custName" placeholder="নাম">
-    <input id="custPhone" placeholder="ফোন">
-    <textarea id="custAddress" placeholder="ঠিকানা"></textarea>
-
-    <select id="delivery">
-      <option value="60">ঢাকা সিটি (60৳)</option>
-      <option value="120">ঢাকা সিটির বাহিরে (120৳)</option>
-    </select>
-
-    <p id="total"></p>
-
-    <button onclick="orderIMO()">Order via IMO</button>
-    <button onclick="orderWA()">Order via WhatsApp</button>
-    <button onclick="closePopup()">Close</button>
+<!-- FOOTER -->
+<footer class="footer">
+  <div>
+    <h4>Modebd</h4>
+    <p>Quality products with Cash on Delivery all over Bangladesh.</p>
   </div>
-</div>
+
+  <div>
+    <h4>Categories</h4>
+    <p>Daily Needs</p>
+    <p>Spices</p>
+    <p>Cosmetics</p>
+  </div>
+
+  <div>
+    <h4>Customer</h4>
+    <p>About Us</p>
+    <p>Contact</p>
+    <p>Privacy Policy</p>
+  </div>
+
+  <div>
+    <h4>Follow Us</h4>
+    <p>Facebook | Instagram</p>
+  </div>
+
+  <p class="copy">© 2025 Modebd</p>
+</footer>
 
 <script src="app.js"></script>
 </body>
